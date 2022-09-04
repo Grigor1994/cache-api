@@ -11,10 +11,6 @@ export class CacheService {
     @InjectModel(Cache.name) private readonly cacheModel: Model<CacheDocument>,
   ) {}
 
-  async getByKey(key: string) {
-    return this.cacheModel.findOne({ key: key });
-  }
-
   async getAllKeys(): Promise<Cache[]> {
     return this.cacheModel.find({}).select('key -_id');
   }
@@ -29,17 +25,19 @@ export class CacheService {
       if (await this.isLimitExceeded()) {
         const { _id } = await this.getOldestEntry();
 
-        return this.cacheModel.findByIdAndUpdate(
-          _id,
-          {
-            key,
-            expireAt,
-            value,
-          },
-          {
-            new: true,
-          },
-        );
+        return this.cacheModel
+          .findByIdAndUpdate(
+            _id,
+            {
+              key,
+              expireAt,
+              value,
+            },
+            {
+              new: true,
+            },
+          )
+          .select('key value -_id');
       }
 
       return this.cacheModel.create({
@@ -51,11 +49,13 @@ export class CacheService {
 
     const isExpired = result.expireAt < Date.now();
 
-    return this.cacheModel.findOneAndUpdate(
-      { key },
-      { expireAt, ...(isExpired && updateValue ? { value } : {}) },
-      { new: true },
-    );
+    return this.cacheModel
+      .findOneAndUpdate(
+        { key },
+        { expireAt, ...(isExpired && updateValue ? { value } : {}) },
+        { new: true },
+      )
+      .select('key value -_id');
   }
 
   async removeByKey(key: string): Promise<void> {
