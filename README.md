@@ -19,8 +19,12 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Testing the app
 
-
+```bash
+#testing
+$ npm test
+```
 
 ## Stay in touch
 
