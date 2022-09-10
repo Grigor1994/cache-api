@@ -39,7 +39,6 @@ $ npm test
 
 ## Get data by key
 
-register new user.
 
 ### URL
 
